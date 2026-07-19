@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Σύνταξη ΥΕΦΚΚ">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<title>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ V84.1 PWA</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ V84.1 PWA Fixed</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f4f8fd,#fff);color:#253044}
@@ -240,7 +240,8 @@ th{background:#f7fbff;color:#344054}
 }
 
 /* PWA εγκατάσταση */
-.btnInstall{background:#1556a6;color:#fff;border:1px solid #0f4b91;box-shadow:0 8px 16px rgba(21,86,166,.20)}
+.btnInstall{background:#1556a6;color:#fff;border:1px solid #0f4b91;box-shadow:0 8px 16px rgba(21,86,166,.20);position:relative;z-index:2;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,255,255,.18)}
+.btnInstall:active{transform:translateY(1px)}
 .btnInstall:disabled{background:#e2e8f0;color:#64748b;border-color:#cbd5e1;box-shadow:none;cursor:default}
 .installToast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(30px);z-index:9999;max-width:min(92vw,520px);background:#111827;color:#fff;padding:12px 16px;border-radius:12px;font-weight:800;font-size:14px;box-shadow:0 14px 35px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:.22s ease;text-align:center}
 .installToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -264,7 +265,7 @@ th{background:#f7fbff;color:#344054}
     </div>
     <div class="actionsTop">
       <button type="button" class="btnCalc" onclick="calculate()">▣ Υπολογισμός</button>
-      <button type="button" class="btnInstall" id="installBtn" onclick="installApp()">📲 Εγκατάσταση εφαρμογής</button>
+      <button type="button" class="btnInstall" id="installBtn">📲 Εγκατάσταση εφαρμογής</button>
     </div>
   </div>
 
@@ -395,6 +396,17 @@ th{background:#f7fbff;color:#344054}
   <div id="excelPanel" class="panel"></div>
 
   <div class="footer">V84 Stable · By Merk_Kermanidis</div>
+</div>
+
+<div id="installToast" class="installToast" role="status" aria-live="polite"></div>
+<div id="installHelp" class="installHelp" role="dialog" aria-modal="true" aria-labelledby="installHelpTitle" onclick="if(event.target===this) closeInstallHelp()">
+  <div class="installHelpCard">
+    <div class="installHelpTitle" id="installHelpTitle">Εγκατάσταση εφαρμογής</div>
+    <div class="installHelpText" id="installHelpText"></div>
+    <div class="installHelpActions">
+      <button type="button" class="btnLight" onclick="closeInstallHelp()">ΟΚ</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -999,23 +1011,37 @@ async function installApp(){
     showInstallToast('Η εφαρμογή είναι ήδη εγκατεστημένη.');
     return;
   }
+
+  // Δίνουμε λίγο χρόνο στο Chrome να ολοκληρώσει τον έλεγχο εγκατάστασης.
+  if(!deferredInstallPrompt && 'serviceWorker' in navigator){
+    try{
+      await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(reject,1200))]);
+      await new Promise(resolve=>setTimeout(resolve,250));
+    }catch(_){ }
+  }
+
   if(deferredInstallPrompt){
-    deferredInstallPrompt.prompt();
-    const choice=await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt=null;
-    if(choice && choice.outcome==='accepted') showInstallToast('Η εγκατάσταση ξεκίνησε.');
-    else showInstallToast('Η εγκατάσταση ακυρώθηκε.');
+    try{
+      deferredInstallPrompt.prompt();
+      const choice=await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt=null;
+      if(choice && choice.outcome==='accepted') showInstallToast('Η εγκατάσταση ξεκίνησε.');
+      else showInstallToast('Η εγκατάσταση ακυρώθηκε.');
+    }catch(_){
+      openInstallHelp('<b>Δεν μπόρεσε να ανοίξει αυτόματα το παράθυρο εγκατάστασης.</b><br><br>Πατήστε το μενού <b>⋮</b> του Chrome και επιλέξτε <b>Εγκατάσταση εφαρμογής</b> ή <b>Προσθήκη στην αρχική οθόνη</b>.');
+    }
     updateInstallButton();
     return;
   }
+
   const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
   const isFile=location.protocol==='file:' || location.protocol==='content:';
   if(isFile){
-    openInstallHelp('<b>Η εγκατάσταση λειτουργεί από τη δημοσιευμένη σελίδα GitHub Pages.</b><br><br>Ανεβάστε όλα τα αρχεία του ZIP στο ίδιο αποθετήριο και ανοίξτε τη σελίδα από τη διεύθυνση <b>https://…github.io/…</b>.');
+    openInstallHelp('<b>Η εγκατάσταση λειτουργεί μόνο από τη δημοσιευμένη σελίδα GitHub Pages.</b><br><br>Ανοίξτε τη διεύθυνση <b>https://…github.io/…</b> μέσα από το Chrome.');
   }else if(isIOS){
     openInstallHelp('Στο Safari πατήστε <b>Κοινή χρήση</b> και μετά <b>Προσθήκη στην οθόνη Αφετηρίας</b>.');
   }else{
-    openInstallHelp('Πατήστε το μενού του browser <b>⋮</b> και επιλέξτε <b>Εγκατάσταση εφαρμογής</b> ή <b>Προσθήκη στην αρχική οθόνη</b>.<br><br>Αν η επιλογή δεν εμφανίζεται ακόμη, ανανεώστε μία φορά τη σελίδα.');
+    openInstallHelp('<b>Το αυτόματο παράθυρο δεν είναι ακόμη διαθέσιμο.</b><br><br>1. Πατήστε το μενού <b>⋮</b> επάνω δεξιά.<br>2. Επιλέξτε <b>Εγκατάσταση εφαρμογής</b> ή <b>Προσθήκη στην αρχική οθόνη</b>.<br><br>Αν δεν εμφανίζεται, κάντε μία ανανέωση της σελίδας και ξαναπατήστε το μπλε κουμπί.');
   }
 }
 window.addEventListener('beforeinstallprompt',event=>{
@@ -1029,9 +1055,20 @@ window.addEventListener('appinstalled',()=>{
   showInstallToast('Η εφαρμογή εγκαταστάθηκε επιτυχώς.');
 });
 if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  window.addEventListener('load',async()=>{
+    try{
+      const registration=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
+      registration.update().catch(()=>{});
+    }catch(_){
+      // Το κουμπί παραμένει ενεργό και εμφανίζει οδηγίες εγκατάστασης.
+    }
+  });
 }
-window.addEventListener('DOMContentLoaded',updateInstallButton);
+window.addEventListener('DOMContentLoaded',()=>{
+  updateInstallButton();
+  const btn=document.getElementById('installBtn');
+  if(btn) btn.addEventListener('click',installApp);
+});
 
 </script>
 </body>
