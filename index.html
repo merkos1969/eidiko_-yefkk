@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ V83 Stable</title>
+<title>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ V84 Stable</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f4f8fd,#fff);color:#253044}
@@ -153,6 +153,18 @@ th{background:#f7fbff;color:#344054}
 @media(max-width:850px){
   .conclusionDetails summary{font-size:17px;padding:12px}
 }
+.conclusionCompare{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:2px solid #d7efe2;
+}
+.conclusionCompareTitle{
+  display:flex;align-items:center;gap:8px;
+  color:#183b63;font-size:17px;font-weight:900;
+  margin-bottom:10px;
+}
+.conclusionCompare .tableScroll{background:#fff}
+.conclusionCompare .interestBox{margin-bottom:0}
 
 .kv .mini{display:block;color:#667085;font-size:12px;margin:4px 0 2px;line-height:1.3}
 
@@ -169,6 +181,42 @@ th{background:#f7fbff;color:#344054}
 .cardBody{margin-top:16px}
 @media(max-width:850px){.cardDetails>summary:after{font-size:26px}}
 
+
+/* V84: ανάλυση σύνταξης, σενάρια και δείκτης συμφέροντος */
+.analysisList{display:grid;gap:7px}
+.analysisRow{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 11px;border:1px solid #e2e8f0;border-radius:11px;background:#fbfdff}
+.analysisRow .aLabel{font-weight:800;color:#344054}
+.analysisRow .aValue{font-weight:900;font-size:18px;color:#123b75;text-align:right}
+.analysisRow.totalGross{background:#eff6ff;border-color:#bfdbfe}
+.analysisRow.totalDed{background:#fff7ed;border-color:#fed7aa}
+.analysisRow.totalNet{background:#ecfdf5;border:2px solid #86efac;padding:14px}
+.analysisRow.totalNet .aValue{font-size:27px;color:#087a3a}
+.formulaBox{margin-top:11px;background:#f8fafc;border-left:5px solid #0d9286;border-radius:10px;padding:11px;font-size:12px;line-height:1.45;color:#475467}
+.estimateSettings{margin:12px 0 0;padding:10px;border-radius:12px;box-shadow:none;background:#f8fafc}
+.estimateSettings summary{font-size:14px;color:#475467}
+.scenarioTable td:first-child{text-align:left;white-space:nowrap}
+.scenarioTable .bestRow{background:#f0fdf4}
+.scenarioTable .notEligible{color:#c62828;font-weight:900}
+.deltaPlus{color:#087a3a;font-weight:900}.deltaSmall{color:#d95b00;font-weight:900}
+.interestBox{margin-top:14px;border-radius:16px;padding:15px;border:2px solid}
+.interestBox.good{background:#ecfdf5;border-color:#22c55e;color:#086b34}
+.interestBox.mid{background:#fffbeb;border-color:#f59e0b;color:#92400e}
+.interestBox.low{background:#fef2f2;border-color:#ef4444;color:#991b1b}
+.interestTitle{font-size:19px;font-weight:900;margin-bottom:6px}
+.interestMain{font-size:17px;font-weight:900;line-height:1.35}
+.interestMeta{font-size:12px;font-weight:700;margin-top:8px;line-height:1.45;opacity:.9}
+.eligBox{border-radius:14px;padding:13px;margin-bottom:12px;border:1px solid}
+.eligOk{background:#ecfdf5;border-color:#86efac}.eligNo{background:#fff7ed;border-color:#fdba74}
+.eligTitle{font-weight:900;font-size:16px;margin-bottom:10px}
+.eligGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.eligItem{background:rgba(255,255,255,.75);border-radius:10px;padding:10px}
+.eligLabel{font-size:11px;color:#667085;font-weight:800;margin-top:5px}.eligBig{font-size:15px;color:#183b63;font-weight:900}
+@media(max-width:850px){
+ .analysisRow{grid-template-columns:1fr}.analysisRow .aValue{text-align:left}
+ .eligGrid{grid-template-columns:1fr}
+ .scenarioTable{font-size:12px}
+}
+
 </style>
 </head>
 <body>
@@ -176,7 +224,7 @@ th{background:#f7fbff;color:#344054}
   <div class="hero">
     <div>
       <h1>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ</h1>
-      <div class="sub">Υπολογισμός σύνταξης υπαλλήλων Εξωτερικής Φρούρησης</div>
+      <div class="sub">V84 Stable · Ανάλυση σύνταξης και σύγκριση σεναρίων ΥΕΦΚΚ</div>
     </div>
     <div class="actionsTop">
       <button type="button" class="btnCalc" onclick="calculate()">▣ Υπολογισμός</button>
@@ -228,6 +276,10 @@ th{background:#f7fbff;color:#344054}
     <div class="mini" style="margin-top:10px;color:#0f5132;font-weight:900">
       Μπλε: πιο γρήγορη έξοδος. Πράσινο: οικονομικά καλύτερη επιλογή στα 40 έτη με 50,01% μέγιστο ποσοστό αναπλήρωσης.
     </div>
+    <div class="conclusionCompare">
+      <div class="conclusionCompareTitle">📊 7. Σύγκριση σεναρίων &amp; δείκτης συμφέροντος</div>
+      <div id="compareOut"></div>
+    </div>
   </div>
         </details>
 
@@ -274,19 +326,18 @@ th{background:#f7fbff;color:#344054}
       <div id="dedOut"></div>
     </div></div></details>
     <div class="card teal">
-      <details class="cardDetails"><summary><div class="head"><div class="num">6</div><div class="title">6. ΜΤΠΥ / Επικουρικό / Καθαρό ποσό</div></div></summary><div class="cardBody">
-      <div class="line"><label>ΜΤΠΥ μικτό</label><input id="mtpyGross" type="number" min="0" step="0.01" value="150"></div>
-      <div class="line"><label>Κρατήσεις ΜΤΠΥ %</label><input id="mtpyDedPct" type="number" min="0" max="60" step="0.1" value="20"></div>
-      <div class="line"><label>Επικουρικό μικτό</label><input id="epikGross" type="number" min="0" step="0.01" value="220"></div>
-      <div class="line"><label>Κρατήσεις επικουρικού %</label><input id="epikDedPct" type="number" min="0" max="60" step="0.1" value="12"></div>
-      <div id="totalOut"></div>
+      <details class="cardDetails" open><summary><div class="head"><div class="num">6</div><div class="title">6. Ανάλυση σύνταξης</div></div></summary><div class="cardBody">
+      <div id="analysisOut"></div>
+      <details class="estimateSettings">
+        <summary>⚙️ Ρυθμίσεις ενδεικτικών υπολογισμών</summary>
+        <div class="line"><label>Ετήσιος συντελεστής ΜΤΠΥ %</label><input id="mtpyAnnualFactor" type="number" min="0.05" max="1" step="0.001" value="0.215"></div>
+        <div class="line"><label>Ετήσιο ποσοστό επικουρικής %</label><input id="epikAnnualRate" type="number" min="0.1" max="1" step="0.01" value="0.45"></div>
+        <div class="line"><label>Εκτιμώμενες κρατήσεις ΜΤΠΥ %</label><input id="mtpyDedPct" type="number" min="0" max="60" step="0.1" value="20"></div>
+        <div class="line"><label>Εκτιμώμενες κρατήσεις επικουρικής %</label><input id="epikDedPct" type="number" min="0" max="60" step="0.1" value="12"></div>
+        <div class="mini">Οι συντελεστές μπορούν να προσαρμοστούν όταν υπάρχουν επίσημα προσωπικά στοιχεία από ΜΤΠΥ ή e‑ΕΦΚΑ.</div>
+      </details>
     </div></div></details>
   </div>
-
-  <div class="card gray" style="margin-top:18px">
-    <details class="cardDetails"><summary><div class="head"><div class="num">7</div><div class="title">7. Πρώτη πιθανή έξοδος / σύγκριση</div></div></summary><div class="cardBody">
-    <div id="compareOut"></div>
-  </div></div></details>
 
   <div class="grid" style="margin-top:18px">
     <div class="card gray">
@@ -305,7 +356,7 @@ th{background:#f7fbff;color:#344054}
   <div id="notesPanel" class="panel"></div>
   <div id="excelPanel" class="panel"></div>
 
-  <div class="footer">By Merk_Kermanidis</div>
+  <div class="footer">V84 Stable · By Merk_Kermanidis</div>
 </div>
 
 <script>
@@ -399,7 +450,7 @@ function totalYearsFor(regime,birth,appoint,target){
    // Αν έχει πάνω από 35 συνολικά έτη ή έχει συμπληρώσει το 60ό έτος,
    // προσμετράται η επιλεγμένη μάχιμη, με όριο το ταβάνι των 40 ετών
    // και το συνολικό όριο αναγνωρίσεων.
-   if(base>=35 || age>=60){
+   if(base>=34.99 || age>=59.99){
      machimi=Math.min(selectedMachimi, Math.max(0,40-base), Math.max(0,12-plastic));
    }
  }
@@ -504,9 +555,9 @@ function eligibilityOptionsAtDate(birth,appoint,target){
  const selectedMachimi=Math.max(0,Math.min(5,N('machimi')||0));
 
  const oldBy37=oldData.total>=37;
- const oldBy60=oldData.age>=60;
- const newBy40=newData.total>=40;
- const newBy60=newData.age>=60 && selectedMachimi>=1 && newData.machimi>=1;
+ const oldBy60=oldData.age>=59.99;
+ const newBy40=newData.total>=39.99;
+ const newBy60=newData.age>=59.99 && selectedMachimi>=1 && newData.machimi>=0.99;
 
  const items=[];
  if(oldBy37 || oldBy60){
@@ -571,178 +622,185 @@ function eligibilityCardHtml(result,birth,appoint,target){
  </div>`;
 }
 
+
+function nationalPensionFor(totalYears){
+ const y=Number(totalYears)||0;
+ if(y<15) return 0;
+ if(y>=20) return 446.87;
+ return 446.87 * (1 - Math.max(0,20-y)*0.02);
+}
+function dateMonthDiff(a,b){
+ if(!a||!b||b<=a) return 0;
+ let months=(b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth());
+ if(b.getDate()<a.getDate()) months--;
+ return Math.max(0,months);
+}
+function waitText(a,b){
+ const m=dateMonthDiff(a,b), y=Math.floor(m/12), r=m%12;
+ if(!m) return '0 μήνες';
+ if(y && r) return `${y} έτη και ${r} μήνες`;
+ if(y) return `${y} ${y===1?'έτος':'έτη'}`;
+ return `${r} ${r===1?'μήνας':'μήνες'}`;
+}
+function estimateMtpy(date,appoint,row){
+ const serviceYears=Math.min(40,yearsBetween(appoint,date));
+ const factor=(N('mtpyAnnualFactor')||0.215)/100;
+ const basic=Math.max(0,Number(row.basic)||0);
+ const extras=Math.max(0,(Number(row.total||row.excelTotal)||0)-basic);
+ const gross=(basic*serviceYears*factor)+(extras*serviceYears*factor);
+ return {gross,serviceYears,factor,basic,extras};
+}
+function estimateEpik(date,birth,appoint,avg){
+ const otherYears=Math.max(0,N('otherDays')/300);
+ const serviceYears=Math.max(0,yearsBetween(appoint,date));
+ const insuranceYears=Math.min(45,serviceYears+otherYears);
+ const cut=new Date('2015-01-01T00:00:00');
+ const preService=date<=cut?serviceYears:Math.max(0,yearsBetween(appoint,cut));
+ const preYears=Math.min(insuranceYears,preService+otherYears);
+ const postYears=Math.max(0,insuranceYears-preYears);
+ const annualRate=(N('epikAnnualRate')||0.45)/100;
+ const age=yearsBetween(birth,date);
+ const ageFactor=Math.max(0.80,Math.min(1.10,0.85+(age-55)*0.015));
+ const preAmount=avg*preYears*annualRate;
+ const postAmount=avg*postYears*annualRate*ageFactor;
+ return {gross:preAmount+postAmount,insuranceYears,preYears,postYears,annualRate,ageFactor,age};
+}
+function scenarioPension(date,regime,birth,appoint,proposal,eligible){
+ const family=familyAt(date);
+ const service=yearsBetween(appoint,date);
+ const data=sourceFor(date,proposal)==='old'?oldPayData:newPayData;
+ const row=findRow(service,family,data)||{};
+ const rankRow=excelSheet2Row(service,family);
+ const ty=totalYearsFor(regime,birth,appoint,date);
+ const replacement=rate(ty.total);
+ const avg=avgSalary(appoint,date,proposal);
+ const national=nationalPensionFor(ty.total);
+ const contributory=avg*replacement/100;
+ const mainGross=national+contributory;
+ const health=mainGross*0.06;
+ const tax=taxApprox(Math.max(0,mainGross-health));
+ const eas=mainGross>1400?(mainGross-1400)*0.02:0;
+ const mainDeductions=health+tax+eas;
+ const mainNet=Math.max(0,mainGross-mainDeductions);
+ const mtpy=estimateMtpy(date,appoint,rankRow);
+ const epik=estimateEpik(date,birth,appoint,avg);
+ const mtpyDed=mtpy.gross*Math.max(0,N('mtpyDedPct'))/100;
+ const epikDed=epik.gross*Math.max(0,N('epikDedPct'))/100;
+ const grossTotal=mainGross+mtpy.gross+epik.gross;
+ const deductions=mainDeductions+mtpyDed+epikDed;
+ const netTotal=Math.max(0,grossTotal-deductions);
+ return {date,regime,eligible,family,service,row:rankRow,rank:rankDisplayName(rankRow.rank),ty,replacement,avg,national,contributory,mainGross,health,tax,eas,mainDeductions,mainNet,mtpy,epik,mtpyDed,epikDed,grossTotal,deductions,netTotal};
+}
+function deltaEuro(value){
+ const v=Number(value)||0;
+ const sign=v>0?'+':'';
+ return `${sign}${euro(v)}`;
+}
+
 function calculate(){
  try{
   let birth=D('birthDate'), appoint=D('appointDate'), target=D('targetDate'), proposal=D('proposalDate')||new Date('2026-01-01T00:00:00');
   if(!target){target=new Date(); E('targetDate').value=target.toISOString().slice(0,10)}
   if(!birth || !appoint){alert('Συμπλήρωσε ημερομηνία γέννησης και διορισμού.'); return;}
-  let regime='new', family=familyAt(target);
-  let service=yearsBetween(appoint,target);
-  let row=findRow(service,family, sourceFor(target,proposal)==='old'?oldPayData:newPayData) || {};
-  let excelRankRow=excelSheet2Row(service,family);
-  let currentRank=rankDisplayName(excelRankRow.rank);
-  set('rankOut', currentRank);
 
-  let ty=totalYearsFor(regime,birth,appoint,target);
-  let r=rate(ty.total);
-  let avg=avgSalary(appoint,target,proposal);
-  let national=446.87;
-  let contributory=avg*r/100;
-  let gross=national+contributory;
-  let health=gross*0.06;
-  let tax=taxApprox(gross-health);
-  let eas=gross>1400?(gross-1400)*0.02:0;
-  let mainNet=Math.max(0,gross-health-tax-eas);
-  let mtpyNet=Math.max(0,N('mtpyGross')*(1-N('mtpyDedPct')/100));
-  let epikNet=Math.max(0,N('epikGross')*(1-N('epikDedPct')/100));
-  let totalNet=mainNet+mtpyNet+epikNet;
+  const eligibilityNow=eligibilityOptionsAtDate(birth,appoint,target);
+  const todayRegime=eligibilityNow.items.some(x=>x.regime.startsWith('Β'))?'new':(eligibilityNow.items.length?'old':'new');
+  const today=scenarioPension(target,todayRegime,birth,appoint,proposal,eligibilityNow.items.length>0);
 
-  let eligibilityNow = eligibilityOptionsAtDate(birth,appoint,target);
-  let eligibilityHtml = eligibilityCardHtml(eligibilityNow,birth,appoint,target);
-  let yearsDetailsHtml = `
+  let firstDate, firstRegime;
+  if(eligibilityNow.items.length){
+    firstDate=new Date(target);
+    firstRegime=eligibilityNow.items[0].regime.startsWith('Β')?'new':'old';
+  }else{
+    firstDate=new Date(eligibilityNow.first.data.date);
+    firstRegime=eligibilityNow.first.regime.startsWith('Β')?'new':'old';
+  }
+  const first=scenarioPension(firstDate,firstRegime,birth,appoint,proposal,true);
+
+  const richT=moneyAt40Data(birth,appoint,target);
+  const fortyDate=richT.date<target?new Date(target):new Date(richT.date);
+  const forty=scenarioPension(fortyDate,'new',birth,appoint,proposal,richT.total>=39.99);
+
+  set('rankOut',today.rank);
+  const eligibilityHtml=eligibilityCardHtml(eligibilityNow,birth,appoint,target);
+  const ty=today.ty;
+  const yearsDetailsHtml=`
     <div class="line"><div class="lab">Συνολικός εργασιακός βίος<br><span class="mini">Υπηρεσία ΥΕΦΚΚ + άλλα ταμεία</span></div><div class="val">${yrs(ty.real)}</div></div>
     <div class="line"><div class="lab">Πλασματικά έτη</div><div class="val">${yrs(ty.plastic)}</div></div>
     <div class="line"><div class="lab">Μάχιμη πενταετία</div><div class="val greenTxt">${yrs(ty.machimi)}</div></div>
-    ${regime==='new' && ty.age>=60 && ty.machimi>=1 && ty.base<35 ? '<div class="mini" style="color:#11884a;margin:4px 0 8px">Στο Β καθεστώς προσμετράται η μάχιμη που επέλεξες από το dropdown, με ταβάνι τα 40 έτη.</div>' : ''}
     <div class="total"><div>Σύνολο συντάξιμων ετών</div><div class="val greenTxt">${yrs(ty.total)}</div></div>
-    <div class="line"><div class="lab">Ποσοστό αναπλήρωσης</div><div class="val greenTxt">${pct(r)}</div></div>
+    <div class="line"><div class="lab">Ποσοστό αναπλήρωσης</div><div class="val greenTxt">${pct(today.replacement)}</div></div>
     <div class="line"><div class="lab">Ηλικία κατά την αίτηση</div><div class="val">${yrs(ty.age)}</div></div>`;
-  set('yearsOut', eligibilityNow.items.length ? (eligibilityHtml + yearsDetailsHtml) : eligibilityHtml);
+  set('yearsOut',eligibilityNow.items.length?(eligibilityHtml+yearsDetailsHtml):eligibilityHtml);
 
   set('salaryOut',`
-    <div class="line"><div class="lab">Μέσος συντάξιμος μισθός</div><div class="val">${euro(avg)}</div></div>
-    <div class="line"><div class="lab">Βαθμός από Excel – Φύλλο 2</div><div class="val">${currentRank}</div></div>
-    <div class="line"><div class="lab">Κλιμάκιο από Excel – Φύλλο 2</div><div class="val">${excelRankRow.klimakio||'-'}</div></div>
-    <div class="line"><div class="lab">Βασικός μισθός</div><div class="val">${euro(row.basic||0)}</div></div>
-    <div class="total"><div>Τελικός μέσος όρος</div><div class="val purpleTxt">${euro(avg)}</div></div>`);
+    <div class="line"><div class="lab">Μέσος συντάξιμος μισθός</div><div class="val">${euro(today.avg)}</div></div>
+    <div class="line"><div class="lab">Βαθμός από Excel – Φύλλο 2</div><div class="val">${today.rank}</div></div>
+    <div class="line"><div class="lab">Κλιμάκιο από Excel – Φύλλο 2</div><div class="val">${today.row.klimakio||'-'}</div></div>
+    <div class="line"><div class="lab">Βασικός μισθός</div><div class="val">${euro(today.row.basic||0)}</div></div>
+    <div class="total"><div>Τελικός μέσος όρος</div><div class="val purpleTxt">${euro(today.avg)}</div></div>`);
 
   set('mainOut',`
-    <div class="line"><div class="lab">Εθνική σύνταξη</div><div class="val">${euro(national)}</div></div>
-    <div class="line"><div class="lab">Ποσοστό αναπλήρωσης</div><div class="val blueTxt">${pct(r)}</div></div>
-    <div class="line"><div class="lab">Ανταποδοτική σύνταξη</div><div class="val">${euro(contributory)}</div></div>
-    <div class="mini" style="margin:6px 0 10px;color:#475467">
-      Ανταποδοτική = ${euro(avg)} × ${pct(r)} = <b>${euro(contributory)}</b>
-    </div>
-    <div class="total"><div>Κύρια σύνταξη (μικτή)</div><div class="val blueTxt">${euro(gross)}</div></div>`);
+    <div class="line"><div class="lab">Εθνική σύνταξη</div><div class="val">${euro(today.national)}</div></div>
+    <div class="line"><div class="lab">Ποσοστό αναπλήρωσης</div><div class="val blueTxt">${pct(today.replacement)}</div></div>
+    <div class="line"><div class="lab">Ανταποδοτική σύνταξη</div><div class="val">${euro(today.contributory)}</div></div>
+    <div class="mini" style="margin:6px 0 10px;color:#475467">Ανταποδοτική = ${euro(today.avg)} × ${pct(today.replacement)} = <b>${euro(today.contributory)}</b></div>
+    <div class="total"><div>Κύρια σύνταξη (μικτή)</div><div class="val blueTxt">${euro(today.mainGross)}</div></div>`);
 
   set('dedOut',`
-    <div class="line"><div class="lab">Περίθαλψη 6%</div><div class="val redTxt">${euro(health)}</div></div>
-    <div class="line"><div class="lab">Εκτιμώμενος φόρος</div><div class="val redTxt">${euro(tax)}</div></div>
-    <div class="line"><div class="lab">Λοιπές κρατήσεις / ΕΑΣ</div><div class="val redTxt">${euro(eas)}</div></div>
-    <div class="total"><div>Καθαρή κύρια σύνταξη</div><div class="val orangeTxt">${euro(mainNet)}</div></div>`);
+    <div class="line"><div class="lab">Περίθαλψη κύριας 6%</div><div class="val redTxt">${euro(today.health)}</div></div>
+    <div class="line"><div class="lab">Εκτιμώμενος φόρος κύριας</div><div class="val redTxt">${euro(today.tax)}</div></div>
+    <div class="line"><div class="lab">Λοιπές κρατήσεις / ΕΑΣ</div><div class="val redTxt">${euro(today.eas)}</div></div>
+    <div class="line"><div class="lab">Κρατήσεις ΜΤΠΥ (εκτίμηση)</div><div class="val redTxt">${euro(today.mtpyDed)}</div></div>
+    <div class="line"><div class="lab">Κρατήσεις επικουρικής (εκτίμηση)</div><div class="val redTxt">${euro(today.epikDed)}</div></div>
+    <div class="total"><div>Σύνολο εκτιμώμενων κρατήσεων</div><div class="val orangeTxt">${euro(today.deductions)}</div></div>`);
 
-  set('totalOut',`
-    <div class="line"><div class="lab">Πληρωτέο ΜΤΠΥ</div><div class="val greenTxt">${euro(mtpyNet)}</div></div>
-    <div class="line"><div class="lab">Πληρωτέο επικουρικό</div><div class="val greenTxt">${euro(epikNet)}</div></div>
-    <div class="bigTotal"><div>Καθαρό ποσό σύνταξης<br><span class="mini">κύρια + ΜΤΠΥ + επικουρικό</span></div><div class="amount">${euro(totalNet)}</div></div>`);
-
-  let oldT=exitDataFor('old',birth,appoint,target), newT=exitDataFor('new',birth,appoint,target);
-  let oldGross=national+avg*rate(oldT.total)/100, newGross=national+avg*rate(newT.total)/100;
-  let oldNet=Math.max(0,oldGross-oldGross*.06-taxApprox(oldGross*.94)-(oldGross>1400?(oldGross-1400)*.02:0))+mtpyNet+epikNet;
-  let newNet=Math.max(0,newGross-newGross*.06-taxApprox(newGross*.94)-(newGross>1400?(newGross-1400)*.02:0))+mtpyNet+epikNet;
-
-  let oldCurrent=totalYearsFor('old',birth,appoint,target);
-  let newCurrent=totalYearsFor('new',birth,appoint,target);
-  let selectedMachimi=Math.max(0,Math.min(5,N('machimi')||0));
-
-  let a37Ok = oldCurrent.total >= 37;
-  let a60Ok = oldCurrent.age >= 60;
-  let b35BaseOk = newCurrent.base >= 35;
-  let b40WithMachimi = Math.min(40, newCurrent.base + selectedMachimi);
-  let b40Ok = b40WithMachimi >= 40;
-  let b60Ok = newCurrent.age >= 60 && selectedMachimi >= 1;
-
-  
-  let fastest = newT.date.getTime() <= oldT.date.getTime() ? 'Β. Νέο' : 'Α. Παλιό';
-  let fastDate = fastest === 'Β. Νέο' ? newT.date : oldT.date;
-  let fastNet = fastest === 'Β. Νέο' ? newNet : oldNet;
-
-  // Περισσότερα χρήματα = υπολογισμός στο ταβάνι των 40 ετών,
-  // γιατί εκεί το ποσοστό αναπλήρωσης είναι 50,01%.
-  let richT = moneyAt40Data(birth, appoint, target);
-  let richRate = rate(richT.total);
-  let richGross = national + avg * richRate / 100;
-  let richNet = Math.max(0, richGross - richGross*.06 - taxApprox(richGross*.94) - (richGross>1400?(richGross-1400)*.02:0)) + mtpyNet + epikNet;
-
-  let oldReason = oldFastestReason(birth, appoint, target);
-  let selectedMachimiForMsg = Math.max(0,Math.min(5,N('machimi')||0));
-
-  // Πιο γρήγορη έξοδος: στο παλιό καθεστώς στα 60 ηλικιακά,
-  // όταν η διαδρομή 60 ετών είναι η πρώτη για το Α καθεστώς.
-  set('conclusionFast', `${fmt(oldReason.date)} · Α. Παλιό · 60 ηλικιακά`);
-  set('conclusionMoney', `${fmt(richT.date)} · Β. Νέο · 40 έτη · 50,01% μέγιστο`);
-
-  set('compareOut',`
-    <div class="tableScroll"><table>
-    <thead>
-      <tr>
-        <th>Καθεστώς</th>
-        <th>Πιθανή ημερομηνία εξόδου</th>
-        <th>Ηλικία τότε</th>
-        <th>Συντάξιμα έτη</th>
-        <th>Μάχιμη</th>
-        <th>Εκτίμηση καθαρά</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><b>Α. Παλιό</b></td>
-        <td><b>${fmt(oldT.date)}</b></td>
-        <td>${yrs(oldT.age)}</td>
-        <td>${yrs(oldT.total)}</td>
-        <td>0,00 έτη</td>
-        <td>${euro(oldNet)}</td>
-      </tr>
-      <tr>
-        <td><b>Β. Νέο</b></td>
-        <td><b>${fmt(newT.date)}</b></td>
-        <td>${yrs(newT.age)}</td>
-        <td>${yrs(newT.total)}</td>
-        <td>${yrs(newT.machimi)}</td>
-        <td>${euro(newNet)}</td>
-      </tr>
-    </tbody>
-    </table></div>
-
-    <div class="progressGrid">
-      ${barHtml(
-        'Α καθεστώς: 37 συντάξιμα έτη',
-        oldCurrent.total,
-        37,
-        a37Ok ? 'Έχει συμπληρωθεί η προϋπόθεση των 37 συντάξιμων ετών.' : 'Υπολείπονται '+yrs(Math.max(0,37-oldCurrent.total))+' για τα 37 έτη.',
-        a37Ok
-      )}
-      ${barHtml(
-        'Α καθεστώς: 60 ηλικιακά έτη',
-        oldCurrent.age,
-        60,
-        a60Ok ? 'Έχει συμπληρωθεί το 60ό έτος ηλικίας.' : 'Ημερομηνία συμπλήρωσης 60ού: '+fmt(addYearsExact(birth,60)),
-        a60Ok
-      )}
-      ${barHtml(
-        'Β καθεστώς: 35 έτη + μάχιμη έως 40',
-        Math.min(40,b40WithMachimi),
-        40,
-        b40Ok ? 'Με την επιλεγμένη μάχιμη φτάνει στο ταβάνι των 40 ετών.' : 'Χρειάζεται βάση 35 ετών και μάχιμη ώστε να φτάσει έως τα 40. Σήμερα με την επιλογή φτάνει '+yrs(b40WithMachimi)+'.',
-        b40Ok
-      )}
-      ${barHtml(
-        'Β καθεστώς: 60 ηλικιακά + μάχιμη',
-        newCurrent.age,
-        60,
-        b60Ok ? 'Μετά το 60ό έτος μπορεί να γίνει χρήση μάχιμης '+selectedMachimi+' έτ. από το dropdown.' : 'Ημερομηνία συμπλήρωσης 60ού: '+fmt(addYearsExact(birth,60))+' · απαιτείται επιλογή τουλάχιστον 1 έτους μάχιμης.',
-        b60Ok
-      )}
+  set('analysisOut',`
+    <div class="analysisList">
+      <div class="analysisRow"><div class="aLabel">🇬🇷 Εθνική σύνταξη</div><div class="aValue">${euro(today.national)}</div></div>
+      <div class="analysisRow"><div class="aLabel">💼 Ανταποδοτική</div><div class="aValue">${euro(today.contributory)}</div></div>
+      <div class="analysisRow"><div class="aLabel">🏛️ ΜΤΠΥ (εκτίμηση)</div><div class="aValue">${euro(today.mtpy.gross)}</div></div>
+      <div class="analysisRow"><div class="aLabel">🛡️ Επικουρική (εκτίμηση)</div><div class="aValue">${euro(today.epik.gross)}</div></div>
+      <div class="analysisRow totalGross"><div class="aLabel">➕ Σύνολο μικτών</div><div class="aValue">${euro(today.grossTotal)}</div></div>
+      <div class="analysisRow totalDed"><div class="aLabel">➖ Εκτιμώμενες κρατήσεις</div><div class="aValue redTxt">${euro(today.deductions)}</div></div>
+      <div class="analysisRow totalNet"><div class="aLabel">💶 Εκτιμώμενο καθαρό ποσό</div><div class="aValue">${euro(today.netTotal)}</div></div>
     </div>
-
-    <div class="mini" style="margin-top:10px;color:#667085">
-      Στο Α καθεστώς εμφανίζονται χωριστά οι δύο διαδρομές: 37 συντάξιμα έτη ή 60 ηλικιακά.
-      Στο Β καθεστώς εμφανίζονται χωριστά οι δύο διαδρομές: 35 συνολικά έτη με χρήση μάχιμης έως τα 40 ή 60 ηλικιακά με χρήση μάχιμης 1–5 ετών.
+    <div class="formulaBox">
+      <b>ΜΤΠΥ:</b> ${euro(today.mtpy.basic+today.mtpy.extras)} × ${today.mtpy.serviceYears.toFixed(2)} έτη × ${(today.mtpy.factor*100).toFixed(3)}% = ${euro(today.mtpy.gross)}.<br>
+      <b>Επικουρική:</b> ${today.epik.insuranceYears.toFixed(2)} έτη ασφάλισης, από τα οποία ${today.epik.preYears.toFixed(2)} έως 31/12/2014 και ${today.epik.postYears.toFixed(2)} μετά, με ηλικιακό συντελεστή ${today.epik.ageFactor.toFixed(3)}.<br>
+      Τα δύο ποσά είναι ενδεικτικά, επειδή ο επίσημος υπολογισμός απαιτεί πραγματικές εισφορές και πλήρες ασφαλιστικό ιστορικό.
     </div>`);
+
+  const gainFirstTo40=forty.netTotal-first.netTotal;
+  const waitFirstTo40=dateMonthDiff(first.date,forty.date);
+  const avgGainPerYear=waitFirstTo40>0?gainFirstTo40/(waitFirstTo40/12):0;
+  let interestClass='low', interestIcon='🔴', interestText='Μπορείτε να αποχωρήσετε χωρίς σημαντική εκτιμώμενη απώλεια';
+  if(gainFirstTo40>=80){interestClass='good';interestIcon='🟢';interestText=`Συμφέρει οικονομικά να παραμείνετε (${deltaEuro(gainFirstTo40)}/μήνα)`}
+  else if(gainFirstTo40>=35){interestClass='mid';interestIcon='🟡';interestText=`Μικρή έως μέτρια διαφορά (${deltaEuro(gainFirstTo40)}/μήνα)`}
+
+  const firstVsToday=first.netTotal-today.netTotal;
+  const fortyVsToday=forty.netTotal-today.netTotal;
+  set('compareOut',`
+    <div class="tableScroll"><table class="scenarioTable">
+      <thead><tr><th>Σενάριο</th><th>Ημερομηνία εξόδου</th><th>Συντάξιμα έτη</th><th>Καθαρή εκτίμηση</th><th>Διαφορά €</th><th>Διαφορά χρόνου</th></tr></thead>
+      <tbody>
+        <tr><td><b>Σήμερα / αίτηση</b><br><span class="mini ${today.eligible?'':'notEligible'}">${today.eligible?'Θεμελιώνεται':'Δεν θεμελιώνεται σήμερα'}</span></td><td>${fmt(today.date)}</td><td>${yrs(today.ty.total)}</td><td><b>${euro(today.netTotal)}</b></td><td>—</td><td>—</td></tr>
+        <tr><td><b>Πρώτη θεμελίωση</b><br><span class="mini">${first.regime==='old'?'Α. Παλιό':'Β. Νέο'}</span></td><td><b>${fmt(first.date)}</b></td><td>${yrs(first.ty.total)}</td><td><b>${euro(first.netTotal)}</b></td><td class="${firstVsToday>=35?'deltaPlus':'deltaSmall'}">${deltaEuro(firstVsToday)}</td><td>${waitText(today.date,first.date)}</td></tr>
+        <tr class="bestRow"><td><b>40 έτη</b><br><span class="mini">50,01% αναπλήρωση</span></td><td><b>${fmt(forty.date)}</b></td><td>${yrs(forty.ty.total)}</td><td><b>${euro(forty.netTotal)}</b></td><td class="${fortyVsToday>=35?'deltaPlus':'deltaSmall'}">${deltaEuro(fortyVsToday)}</td><td>${waitText(today.date,forty.date)}</td></tr>
+      </tbody>
+    </table></div>
+    <div class="interestBox ${interestClass}">
+      <div class="interestTitle">${interestIcon} Δείκτης συμφέροντος</div>
+      <div class="interestMain">${interestText}</div>
+      <div class="interestMeta">Σύγκριση 40 ετών με πρώτη θεμελίωση: ${deltaEuro(gainFirstTo40)}/μήνα, με επιπλέον παραμονή ${waitText(first.date,forty.date)}.${waitFirstTo40>0?` Μέσο εκτιμώμενο όφελος ανά επιπλέον έτος: ${euro(avgGainPerYear)}/μήνα.`:''}<br>Ο δείκτης είναι ενημερωτικός και δεν αποτελεί προτροπή συνταξιοδότησης ή παραμονής.</div>
+    </div>`);
+
+  set('conclusionFast',`${fmt(first.date)} · ${first.regime==='old'?'Α. Παλιό':'Β. Νέο'} · πρώτη θεμελίωση`);
+  set('conclusionMoney',`${fmt(forty.date)} · 40 έτη · ${euro(forty.netTotal)} καθαρά`);
  }catch(err){console.error(err); alert('Σφάλμα υπολογισμού: '+err.message)}
 }
 
-const STORAGE_KEY = 'syntaxiodotikos_yefkk_v83_stable';
+const STORAGE_KEY = 'syntaxiodotikos_yefkk_v84_stable';
 
 function collectData(){
  let data={};
@@ -779,7 +837,7 @@ function loadData(){
    let raw = localStorage.getItem(STORAGE_KEY);
    // Συμβατότητα με προηγούμενες εκδόσεις
    if(!raw){
-     const oldKeys = ['syntaxiodotikos_yefkk_v83'];
+     const oldKeys = ['syntaxiodotikos_yefkk_v83_stable','syntaxiodotikos_yefkk_v83'];
      for(const k of oldKeys){
        raw = localStorage.getItem(k);
        if(raw) break;
@@ -794,7 +852,7 @@ function loadData(){
 }
 function loadSavedSilently(){
  try{
-   let raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('syntaxiodotikos_yefkk_v83');
+   let raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('syntaxiodotikos_yefkk_v83_stable') || localStorage.getItem('syntaxiodotikos_yefkk_v83');
    if(raw) applyData(JSON.parse(raw));
  }catch(e){}
 }
@@ -811,7 +869,7 @@ function toggleNotes(){
  <div class="note"><b>Καθεστώς Α</b><br>Παλιό καθεστώς: 37 συνολικά έτη ή 60 ετών. Δεν λαμβάνεται μάχιμη πενταετία.</div>
  <div class="note"><b>Καθεστώς Β</b><br>Τα 40 έτη είναι ταβάνι. Πάνω από 35 έτη μπαίνει όση μάχιμη χρειάζεται έως τα 40. Μετά το 60ό έτος μπορεί να γίνει χρήση από 1 έως 5 έτη μάχιμης, ανάλογα με την επιλογή.</div>
  <div class="note"><b>Μέσος συντάξιμος μισθός</b><br>Υπολογισμός από 01/01/2002 έως την αίτηση, με βάση τα φύλλα Excel.</div>
- <div class="note"><b>Αποποίηση</b><br>Τα ποσά είναι ενδεικτικά και όχι επίσημη πράξη συνταξιοδότησης.</div>
+ <div class="note"><b>ΜΤΠΥ & Επικουρική V84</b><br>Το ΜΤΠΥ εκτιμάται από αποδοχές, έτη συμμετοχής και συντελεστή. Η επικουρική εκτιμάται σε προ‑2015 και μετα‑2015 τμήμα. Απαιτούνται επίσημα στοιχεία εισφορών για ακριβή πράξη.</div><div class="note"><b>Αποποίηση</b><br>Τα ποσά και ο δείκτης συμφέροντος είναι ενδεικτικά και όχι επίσημη πράξη ή προσωπική συμβουλή συνταξιοδότησης.</div>
  </div></div>`;
  p.classList.toggle('show'); if(p.classList.contains('show'))p.scrollIntoView({behavior:'smooth'});
 }
