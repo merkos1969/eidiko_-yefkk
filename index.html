@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ V84 Stable</title>
+<title>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ V84 Stable – Διόρθωση Σεναρίων</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f4f8fd,#fff);color:#253044}
@@ -211,10 +211,25 @@ th{background:#f7fbff;color:#344054}
 .eligGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .eligItem{background:rgba(255,255,255,.75);border-radius:10px;padding:10px}
 .eligLabel{font-size:11px;color:#667085;font-weight:800;margin-top:5px}.eligBig{font-size:15px;color:#183b63;font-weight:900}
+.scenarioNote{margin:10px 0 0;padding:10px 12px;border:1px solid #bfdbfe;border-radius:11px;background:#eff6ff;color:#174a8b;font-size:12px;font-weight:800;line-height:1.45}
+.interestStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:11px}
+.interestStat{display:flex;justify-content:space-between;gap:10px;align-items:center;background:rgba(255,255,255,.65);border:1px solid currentColor;border-radius:10px;padding:9px 10px}
+.interestStat span{font-size:12px;font-weight:800;opacity:.86}.interestStat b{font-size:14px;text-align:right}
 @media(max-width:850px){
  .analysisRow{grid-template-columns:1fr}.analysisRow .aValue{text-align:left}
  .eligGrid{grid-template-columns:1fr}
- .scenarioTable{font-size:12px}
+ .conclusionCompare .tableScroll{overflow:visible;border:0;background:transparent}
+ .scenarioTable{min-width:0;font-size:13px;background:transparent}
+ .scenarioTable thead{display:none}
+ .scenarioTable,.scenarioTable tbody,.scenarioTable tr,.scenarioTable td{display:block;width:100%}
+ .scenarioTable tr{margin-bottom:10px;padding:10px;border:1px solid #dbe7f5;border-radius:13px;background:#fff;overflow:hidden}
+ .scenarioTable tr.bestRow{background:#f0fdf4;border-color:#bbf7d0}
+ .scenarioTable td{display:grid;grid-template-columns:minmax(112px,42%) 1fr;gap:9px;align-items:start;border:0;border-bottom:1px dashed #e2e8f0;padding:7px 2px;text-align:right;white-space:normal}
+ .scenarioTable td::before{content:attr(data-label);font-weight:900;color:#667085;text-align:left}
+ .scenarioTable td:first-child{display:block;text-align:left;border-bottom:1px solid #dbe7f5;padding:3px 2px 9px;margin-bottom:2px;white-space:normal}
+ .scenarioTable td:first-child::before{display:none}
+ .scenarioTable td:last-child{border-bottom:0}
+ .interestStats{grid-template-columns:1fr}
 }
 
 </style>
@@ -224,7 +239,7 @@ th{background:#f7fbff;color:#344054}
   <div class="hero">
     <div>
       <h1>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ</h1>
-      <div class="sub">V84 Stable · Ανάλυση σύνταξης και σύγκριση σεναρίων ΥΕΦΚΚ</div>
+      <div class="sub">V84.1 Stable · Βελτιωμένη σύγκριση σεναρίων ΥΕΦΚΚ</div>
     </div>
     <div class="actionsTop">
       <button type="button" class="btnCalc" onclick="calculate()">▣ Υπολογισμός</button>
@@ -468,6 +483,9 @@ function addYearsExact(date, years){
  if(rest > 0){
    d = new Date(d.getTime() + rest * 365.2425 * 24 * 3600 * 1000);
  }
+ // Όλες οι ημερομηνίες σεναρίων συγκρίνονται σε ακέραιη ημερολογιακή ημέρα.
+ // Αποφεύγονται έτσι διαφορετικά ποσά για την ίδια εμφανιζόμενη ημερομηνία.
+ d.setHours(0,0,0,0);
  return d;
 }
 function minDate(a,b){ return a.getTime() <= b.getTime() ? a : b; }
@@ -530,8 +548,8 @@ function moneyAt40Data(birth, appoint, target){
  let plastic = (N('childMonths')+N('studyMonths')+N('armyMonths')+N('educationMonths')+N('gapStrikeMonths')+N('otherPlasticMonths'))/12;
  let selectedMachimi = Math.max(0,Math.min(5,N('machimi')||0));
  let needRealFor40 = Math.max(0, 40 - otherYears - plastic - selectedMachimi);
+ // Η ημερομηνία των 40 ετών είναι ανεξάρτητη από την ημερομηνία αίτησης.
  let date40 = addYearsExact(appoint, needRealFor40);
- if(date40 < target) date40 = new Date(target);
  let data = totalYearsFor('new', birth, appoint, date40);
  // Αν λόγω ορίου μάχιμης ή πλασματικών δεν έφτασε ακριβώς 40, κρατάμε ό,τι προκύπτει.
  return {date:date40, ...data};
@@ -643,6 +661,12 @@ function waitText(a,b){
  if(y) return `${y} ${y===1?'έτος':'έτη'}`;
  return `${r} ${r===1?'μήνας':'μήνες'}`;
 }
+function signedTimeText(reference,date){
+ if(!reference||!date) return '—';
+ if(date.getTime()===reference.getTime()) return 'ίδια ημερομηνία';
+ if(date>reference) return `${waitText(reference,date)} αργότερα`;
+ return `${waitText(date,reference)} νωρίτερα`;
+}
 function estimateMtpy(date,appoint,row){
  const serviceYears=Math.min(40,yearsBetween(appoint,date));
  const factor=(N('mtpyAnnualFactor')||0.215)/100;
@@ -708,18 +732,15 @@ function calculate(){
   const todayRegime=eligibilityNow.items.some(x=>x.regime.startsWith('Β'))?'new':(eligibilityNow.items.length?'old':'new');
   const today=scenarioPension(target,todayRegime,birth,appoint,proposal,eligibilityNow.items.length>0);
 
-  let firstDate, firstRegime;
-  if(eligibilityNow.items.length){
-    firstDate=new Date(target);
-    firstRegime=eligibilityNow.items[0].regime.startsWith('Β')?'new':'old';
-  }else{
-    firstDate=new Date(eligibilityNow.first.data.date);
-    firstRegime=eligibilityNow.first.regime.startsWith('Β')?'new':'old';
-  }
+  // Πάντα η πραγματική πρώτη ημερομηνία θεμελίωσης, ακόμη κι αν η αίτηση είναι μεταγενέστερη.
+  const firstDate=new Date(eligibilityNow.first.data.date);
+  const firstRegime=eligibilityNow.first.regime.startsWith('Β')?'new':'old';
+  const firstReason=eligibilityNow.first.reason;
   const first=scenarioPension(firstDate,firstRegime,birth,appoint,proposal,true);
 
+  // Πάντα η πραγματική ημερομηνία συμπλήρωσης των 40 ετών.
   const richT=moneyAt40Data(birth,appoint,target);
-  const fortyDate=richT.date<target?new Date(target):new Date(richT.date);
+  const fortyDate=new Date(richT.date);
   const forty=scenarioPension(fortyDate,'new',birth,appoint,proposal,richT.total>=39.99);
 
   set('rankOut',today.rank);
@@ -773,30 +794,45 @@ function calculate(){
     </div>`);
 
   const gainFirstTo40=forty.netTotal-first.netTotal;
+  const gainPctFirstTo40=first.netTotal>0?(gainFirstTo40/first.netTotal)*100:0;
   const waitFirstTo40=dateMonthDiff(first.date,forty.date);
   const avgGainPerYear=waitFirstTo40>0?gainFirstTo40/(waitFirstTo40/12):0;
-  let interestClass='low', interestIcon='🔴', interestText='Μπορείτε να αποχωρήσετε χωρίς σημαντική εκτιμώμενη απώλεια';
-  if(gainFirstTo40>=80){interestClass='good';interestIcon='🟢';interestText=`Συμφέρει οικονομικά να παραμείνετε (${deltaEuro(gainFirstTo40)}/μήνα)`}
-  else if(gainFirstTo40>=35){interestClass='mid';interestIcon='🟡';interestText=`Μικρή έως μέτρια διαφορά (${deltaEuro(gainFirstTo40)}/μήνα)`}
+  let interestClass='low', interestIcon='🔴', interestText='Δεν προκύπτει σημαντικό οικονομικό όφελος παραμονής';
+  if(gainFirstTo40>=80){interestClass='good';interestIcon='🟢';interestText='Οικονομικό όφελος παραμονής'}
+  else if(gainFirstTo40>=35){interestClass='mid';interestIcon='🟡';interestText='Μικρό έως μέτριο οικονομικό όφελος παραμονής'}
 
+  const sameApplicationAnd40=today.date.toISOString().slice(0,10)===forty.date.toISOString().slice(0,10);
   const firstVsToday=first.netTotal-today.netTotal;
   const fortyVsToday=forty.netTotal-today.netTotal;
+  const applicationRow=sameApplicationAnd40
+    ? `<tr class="bestRow"><td><b>Ημερομηνία αίτησης / 40 έτη</b><br><span class="mini ${today.eligible?'':'notEligible'}">${today.eligible?'Η επιλεγμένη ημερομηνία συμπίπτει με τη συμπλήρωση 40 συντάξιμων ετών':'Δεν θεμελιώνεται στην αίτηση'}</span></td><td data-label="Ημερομηνία"><b>${fmt(today.date)}</b></td><td data-label="Συντάξιμα έτη">${yrs(forty.ty.total)}</td><td data-label="Καθαρή εκτίμηση"><b>${euro(forty.netTotal)}</b></td><td data-label="Διαφορά €/μήνα">—</td><td data-label="Διαφορά χρόνου">Σημείο αναφοράς</td></tr>`
+    : `<tr><td><b>Ημερομηνία αίτησης</b><br><span class="mini ${today.eligible?'':'notEligible'}">${today.eligible?'Η ημερομηνία που επέλεξε ο χρήστης':'Δεν θεμελιώνεται στην αίτηση'}</span></td><td data-label="Ημερομηνία">${fmt(today.date)}</td><td data-label="Συντάξιμα έτη">${yrs(today.ty.total)}</td><td data-label="Καθαρή εκτίμηση"><b>${euro(today.netTotal)}</b></td><td data-label="Διαφορά €/μήνα">—</td><td data-label="Διαφορά χρόνου">Σημείο αναφοράς</td></tr>`;
+  const fortyRow=sameApplicationAnd40?'':`<tr class="bestRow"><td><b>40 συντάξιμα έτη</b><br><span class="mini">Μέγιστο ποσοστό αναπλήρωσης 50,01%</span></td><td data-label="Ημερομηνία"><b>${fmt(forty.date)}</b></td><td data-label="Συντάξιμα έτη">${yrs(forty.ty.total)}</td><td data-label="Καθαρή εκτίμηση"><b>${euro(forty.netTotal)}</b></td><td data-label="Διαφορά €/μήνα" class="${fortyVsToday>=35?'deltaPlus':'deltaSmall'}">${deltaEuro(fortyVsToday)}</td><td data-label="Διαφορά χρόνου">${signedTimeText(today.date,forty.date)}</td></tr>`;
+  const coincidenceNote=sameApplicationAnd40?`<div class="scenarioNote">ℹ️ Η ημερομηνία αίτησης συμπίπτει με τη συμπλήρωση των 40 συντάξιμων ετών. Για αυτό εμφανίζεται ως ένα ενιαίο σενάριο.</div>`:'';
+
   set('compareOut',`
     <div class="tableScroll"><table class="scenarioTable">
-      <thead><tr><th>Σενάριο</th><th>Ημερομηνία εξόδου</th><th>Συντάξιμα έτη</th><th>Καθαρή εκτίμηση</th><th>Διαφορά €</th><th>Διαφορά χρόνου</th></tr></thead>
+      <thead><tr><th>Σενάριο</th><th>Ημερομηνία εξόδου</th><th>Συντάξιμα έτη</th><th>Καθαρή εκτίμηση</th><th>Διαφορά €/μήνα</th><th>Διαφορά χρόνου</th></tr></thead>
       <tbody>
-        <tr><td><b>Σήμερα / αίτηση</b><br><span class="mini ${today.eligible?'':'notEligible'}">${today.eligible?'Θεμελιώνεται':'Δεν θεμελιώνεται σήμερα'}</span></td><td>${fmt(today.date)}</td><td>${yrs(today.ty.total)}</td><td><b>${euro(today.netTotal)}</b></td><td>—</td><td>—</td></tr>
-        <tr><td><b>Πρώτη θεμελίωση</b><br><span class="mini">${first.regime==='old'?'Α. Παλιό':'Β. Νέο'}</span></td><td><b>${fmt(first.date)}</b></td><td>${yrs(first.ty.total)}</td><td><b>${euro(first.netTotal)}</b></td><td class="${firstVsToday>=35?'deltaPlus':'deltaSmall'}">${deltaEuro(firstVsToday)}</td><td>${waitText(today.date,first.date)}</td></tr>
-        <tr class="bestRow"><td><b>40 έτη</b><br><span class="mini">50,01% αναπλήρωση</span></td><td><b>${fmt(forty.date)}</b></td><td>${yrs(forty.ty.total)}</td><td><b>${euro(forty.netTotal)}</b></td><td class="${fortyVsToday>=35?'deltaPlus':'deltaSmall'}">${deltaEuro(fortyVsToday)}</td><td>${waitText(today.date,forty.date)}</td></tr>
+        ${applicationRow}
+        <tr><td><b>Πρώτη θεμελίωση</b><br><span class="mini">${first.regime==='old'?'Α. Παλιό':'Β. Νέο'} · ${firstReason}</span></td><td data-label="Ημερομηνία"><b>${fmt(first.date)}</b></td><td data-label="Συντάξιμα έτη">${yrs(first.ty.total)}</td><td data-label="Καθαρή εκτίμηση"><b>${euro(first.netTotal)}</b></td><td data-label="Διαφορά €/μήνα" class="${firstVsToday>=35?'deltaPlus':'deltaSmall'}">${deltaEuro(firstVsToday)}</td><td data-label="Διαφορά χρόνου">${signedTimeText(today.date,first.date)}</td></tr>
+        ${fortyRow}
       </tbody>
     </table></div>
+    ${coincidenceNote}
     <div class="interestBox ${interestClass}">
       <div class="interestTitle">${interestIcon} Δείκτης συμφέροντος</div>
       <div class="interestMain">${interestText}</div>
-      <div class="interestMeta">Σύγκριση 40 ετών με πρώτη θεμελίωση: ${deltaEuro(gainFirstTo40)}/μήνα, με επιπλέον παραμονή ${waitText(first.date,forty.date)}.${waitFirstTo40>0?` Μέσο εκτιμώμενο όφελος ανά επιπλέον έτος: ${euro(avgGainPerYear)}/μήνα.`:''}<br>Ο δείκτης είναι ενημερωτικός και δεν αποτελεί προτροπή συνταξιοδότησης ή παραμονής.</div>
+      <div class="interestStats">
+        <div class="interestStat"><span>Διαφορά σύνταξης</span><b>${deltaEuro(gainFirstTo40)}/μήνα</b></div>
+        <div class="interestStat"><span>Ποσοστιαία αύξηση</span><b>${gainPctFirstTo40>=0?'+':''}${gainPctFirstTo40.toFixed(1).replace('.',',')}%</b></div>
+        <div class="interestStat"><span>Επιπλέον παραμονή</span><b>${waitText(first.date,forty.date)}</b></div>
+        <div class="interestStat"><span>Όφελος ανά επιπλέον έτος</span><b>${waitFirstTo40>0?`${euro(avgGainPerYear)}/μήνα`:'—'}</b></div>
+      </div>
+      <div class="interestMeta">Η σύγκριση γίνεται μεταξύ πρώτης θεμελίωσης και συμπλήρωσης 40 συντάξιμων ετών. Ο δείκτης είναι ενημερωτικός και δεν αποτελεί προτροπή συνταξιοδότησης ή παραμονής. Συνυπολογίστε προσωπικούς, οικογενειακούς και επαγγελματικούς λόγους.</div>
     </div>`);
 
-  set('conclusionFast',`${fmt(first.date)} · ${first.regime==='old'?'Α. Παλιό':'Β. Νέο'} · πρώτη θεμελίωση`);
+  set('conclusionFast',`${fmt(first.date)} · ${first.regime==='old'?'Α. Παλιό':'Β. Νέο'} · ${firstReason}`);
   set('conclusionMoney',`${fmt(forty.date)} · 40 έτη · ${euro(forty.netTotal)} καθαρά`);
  }catch(err){console.error(err); alert('Σφάλμα υπολογισμού: '+err.message)}
 }
