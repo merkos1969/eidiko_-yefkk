@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Σύνταξη ΥΕΦΚΚ">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ V84.1 PWA Fixed</title>
+<title>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ V84.3 Stable</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f4f8fd,#fff);color:#253044}
@@ -22,6 +22,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(
 button{border:0;border-radius:10px;padding:12px 16px;font-weight:800;cursor:pointer;font-size:15px}
 .btnCalc{background:#11884a;color:#fff;box-shadow:0 8px 16px rgba(17,136,74,.25)}
 .btnLight{background:#fff;color:#174b83;border:1px solid #cdddf0}
+.btnPrint{background:#6d28d9;color:#fff;box-shadow:0 8px 16px rgba(109,40,217,.22)}
 .info{display:flex;gap:10px;align-items:center;background:#f6fbff;border:1px solid #93c5fd;border-radius:12px;padding:12px 14px;margin-bottom:14px;color:#173f72}
 .info b{background:#1556a6;color:#fff;border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -252,7 +253,36 @@ th{background:#f7fbff;color:#344054}
 .installHelpText{color:#475467;font-size:15px;line-height:1.55}
 .installHelpText b{color:#111827}
 .installHelpActions{display:flex;justify-content:flex-end;margin-top:15px}
-@media(max-width:850px){.actionsTop .btnInstall{flex-basis:100%}.installHelpCard{padding:16px}}
+@media(max-width:850px){.actionsTop .btnInstall,.actionsTop .btnPrint{flex-basis:100%}.installHelpCard{padding:16px}}
+
+
+/* V84.3 PDF / Εκτύπωση */
+@media print{
+  @page{size:A4;margin:10mm}
+  html,body{background:#fff!important;color:#111!important}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .wrap{max-width:none!important;padding:0!important}
+  .hero{border:0!important;box-shadow:none!important;padding:0 0 10px!important;margin-bottom:10px!important}
+  .hero h1{font-size:22pt!important}
+  .hero .sub{font-size:10pt!important}
+  .actionsTop,.installToast,.installHelp,.noPrint{display:none!important}
+  .info{box-shadow:none!important;margin-bottom:10px!important}
+  .card,details,.conclusionCard,.conclusionDetails{box-shadow:none!important;break-inside:avoid;page-break-inside:avoid}
+  details{display:block!important}
+  details>summary{display:none!important}
+  .cardDetails>.cardBody,.cardDetails:not([open])>.cardBody{display:block!important}
+  .conclusionDetails .conclusionInside{display:block!important}
+  .grid,.noteGrid{grid-template-columns:1fr 1fr!important}
+  .line{grid-template-columns:1.1fr .9fr!important;padding:5px 0!important}
+  .val{text-align:right!important}
+  input,select{border:0!important;background:transparent!important;padding:2px 0!important;appearance:none!important;-webkit-appearance:none!important}
+  .tableScroll{overflow:visible!important}
+  table{min-width:0!important;font-size:9pt!important}
+  th,td{padding:6px!important}
+  button{display:none!important}
+  #notesPanel,#excelPanel{display:none!important}
+  .footer{margin-top:10px!important;font-size:9pt!important}
+}
 
 </style>
 </head>
@@ -261,10 +291,11 @@ th{background:#f7fbff;color:#344054}
   <div class="hero">
     <div>
       <h1>Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ</h1>
-      <div class="sub">V84.1 Stable · Βελτιωμένη σύγκριση σεναρίων ΥΕΦΚΚ</div>
+      <div class="sub">V84.3 Stable · PDF / Εκτύπωση</div>
     </div>
     <div class="actionsTop">
       <button type="button" class="btnCalc" onclick="calculate()">▣ Υπολογισμός</button>
+      <button type="button" class="btnPrint" onclick="printReport()">🖨️ PDF / Εκτύπωση</button>
       <button type="button" class="btnInstall" id="installBtn">📲 Εγκατάσταση εφαρμογής</button>
     </div>
   </div>
@@ -306,6 +337,7 @@ th{background:#f7fbff;color:#344054}
       <div class="conclusionItem fastChoice">
         <div class="small">Πιο γρήγορη έξοδος</div>
         <div class="big" id="conclusionFast">-</div>
+        <div class="mini" id="conclusionFastNote" style="margin-top:6px;color:#667085">-</div>
       </div>
       <div class="conclusionItem highlight moneyChoice">
         <div class="small">Καλύτερη οικονομικά επιλογή</div>
@@ -378,7 +410,7 @@ th{background:#f7fbff;color:#344054}
     </div></div></details>
   </div>
 
-  <div class="grid" style="margin-top:18px">
+  <div class="grid noPrint" style="margin-top:18px">
     <div class="card gray">
       <div class="title" style="margin-bottom:12px">Ενέργειες</div>
       <button type="button" class="btnLight" onclick="saveData()">💾 Αποθήκευση στοιχείων</button>
@@ -395,7 +427,7 @@ th{background:#f7fbff;color:#344054}
   <div id="notesPanel" class="panel"></div>
   <div id="excelPanel" class="panel"></div>
 
-  <div class="footer">V84 Stable · By Merk_Kermanidis</div>
+  <div class="footer">V84.3 Stable · By Merk_Kermanidis</div>
 </div>
 
 <div id="installToast" class="installToast" role="status" aria-live="polite"></div>
@@ -601,6 +633,27 @@ function oldFastestReason(birth, appoint, target){
  return {reason:'60 ηλικιακά έτη', date:date60};
 }
 
+function newFastestReason(birth, appoint){
+ let otherYears = N('otherDays')/300;
+ let plastic = (N('childMonths')+N('studyMonths')+N('armyMonths')+N('educationMonths')+N('gapStrikeMonths')+N('otherPlasticMonths'))/12;
+ let selectedMachimi = Math.max(0,Math.min(5,N('machimi')||0));
+
+ // Διαδρομή 40 συντάξιμων ετών.
+ let needRealFor40 = Math.max(0, 40 - otherYears - plastic - selectedMachimi);
+ let date40 = addYearsExact(appoint, needRealFor40);
+
+ // Ηλικιακή διαδρομή: στα 60 μόνο όταν έχει επιλεγεί τουλάχιστον 1 έτος μάχιμης.
+ // Χωρίς μάχιμη, η εφεδρική ηλικιακή ημερομηνία του μοντέλου είναι τα 67.
+ let date60 = addYearsExact(birth, 60);
+ let ageRouteDate = selectedMachimi >= 1 ? date60 : addYearsExact(birth, 67);
+ let ageRouteReason = selectedMachimi >= 1 ? '60 ηλικιακά έτη με μάχιμη' : '67 ηλικιακά έτη';
+
+ if(date40.getTime() <= ageRouteDate.getTime()){
+   return {reason:'40 συντάξιμα έτη', date:date40, date60};
+ }
+ return {reason:ageRouteReason, date:ageRouteDate, date60};
+}
+
 
 function eligibilityOptionsAtDate(birth,appoint,target){
  const oldData=totalYearsFor('old',birth,appoint,target);
@@ -632,9 +685,11 @@ function eligibilityOptionsAtDate(birth,appoint,target){
 
  const oldExit=exitDataFor('old',birth,appoint,target);
  const newExit=exitDataFor('new',birth,appoint,target);
+ const oldReason=oldFastestReason(birth,appoint,target);
+ const newReason=newFastestReason(birth,appoint);
  const first = oldExit.date.getTime() <= newExit.date.getTime()
-   ? {regime:'Α. Παλιό',reason:oldFastestReason(birth,appoint,target).reason,data:oldExit}
-   : {regime:'Β. Νέο',reason:'60 ηλικιακά έτη με μάχιμη ή 40 συντάξιμα έτη',data:newExit};
+   ? {regime:'Α. Παλιό',reason:oldReason.reason,data:oldExit,date60:addYearsExact(birth,60)}
+   : {regime:'Β. Νέο',reason:newReason.reason,data:newExit,date60:newReason.date60};
 
  return {items,first,oldData,newData};
 }
@@ -843,6 +898,10 @@ function calculate(){
     : `<tr><td><b>Ημερομηνία αίτησης</b><br><span class="mini ${today.eligible?'':'notEligible'}">${today.eligible?'Η ημερομηνία που επέλεξε ο χρήστης':'Δεν θεμελιώνεται στην αίτηση'}</span></td><td data-label="Ημερομηνία">${fmt(today.date)}</td><td data-label="Συντάξιμα έτη">${yrs(today.ty.total)}</td><td data-label="Καθαρή εκτίμηση"><b>${euro(today.netTotal)}</b></td><td data-label="Διαφορά €/μήνα">—</td><td data-label="Διαφορά χρόνου">Σημείο αναφοράς</td></tr>`;
   const fortyRow=sameApplicationAnd40?'':`<tr class="bestRow"><td><b>40 συντάξιμα έτη</b><br><span class="mini">Μέγιστο ποσοστό αναπλήρωσης 50,01%</span></td><td data-label="Ημερομηνία"><b>${fmt(forty.date)}</b></td><td data-label="Συντάξιμα έτη">${yrs(forty.ty.total)}</td><td data-label="Καθαρή εκτίμηση"><b>${euro(forty.netTotal)}</b></td><td data-label="Διαφορά €/μήνα" class="${fortyVsToday>=35?'deltaPlus':'deltaSmall'}">${deltaEuro(fortyVsToday)}</td><td data-label="Διαφορά χρόνου">${signedTimeText(today.date,forty.date)}</td></tr>`;
   const coincidenceNote=sameApplicationAnd40?`<div class="scenarioNote">ℹ️ Η ημερομηνία αίτησης συμπίπτει με τη συμπλήρωση των 40 συντάξιμων ετών. Για αυτό εμφανίζεται ως ένα ενιαίο σενάριο.</div>`:'';
+  const age60Date=addYearsExact(birth,60);
+  const fortyBefore60Note=(first.regime==='new' && firstReason==='40 συντάξιμα έτη' && first.date.getTime()<age60Date.getTime())
+    ? `<div class="scenarioNote">ℹ️ Η πρώτη θεμελίωση στο Β προκύπτει εδώ από τη συμπλήρωση <b>40 συντάξιμων ετών</b>, όχι από το 60ό έτος. Το 60ό έτος συμπληρώνεται στις <b>${fmt(age60Date)}</b>.</div>`
+    : '';
 
   set('compareOut',`
     <div class="tableScroll"><table class="scenarioTable">
@@ -854,6 +913,7 @@ function calculate(){
       </tbody>
     </table></div>
     ${coincidenceNote}
+    ${fortyBefore60Note}
     <div class="interestBox ${interestClass}">
       <div class="interestTitle">${interestIcon} Δείκτης συμφέροντος</div>
       <div class="interestMain">${interestText}</div>
@@ -867,6 +927,12 @@ function calculate(){
     </div>`);
 
   set('conclusionFast',`${fmt(first.date)} · ${first.regime==='old'?'Α. Παλιό':'Β. Νέο'} · ${firstReason}`);
+  const age60DateForConclusion=addYearsExact(birth,60);
+  if(first.regime==='new' && firstReason==='40 συντάξιμα έτη' && first.date.getTime()<age60DateForConclusion.getTime()){
+    set('conclusionFastNote',`Το 60ό έτος συμπληρώνεται στις ${fmt(age60DateForConclusion)}. Η παραπάνω ημερομηνία προκύπτει από τα 40 συντάξιμα έτη.`);
+  }else{
+    set('conclusionFastNote',`Ηλικία 60 ετών: ${fmt(age60DateForConclusion)}`);
+  }
   set('conclusionMoney',`${fmt(forty.date)} · 40 έτη · ${euro(forty.netTotal)} καθαρά`);
  }catch(err){console.error(err); alert('Σφάλμα υπολογισμού: '+err.message)}
 }
@@ -971,6 +1037,34 @@ document.addEventListener('change',e=>{
    autoSaveData();
  }
 });
+
+
+
+/* PDF / Εκτύπωση */
+function printReport(){
+  calculate();
+  const details=[...document.querySelectorAll('details')];
+  const openState=details.map(d=>d.open);
+  details.forEach(d=>d.open=true);
+
+  const oldTitle=document.title;
+  document.title='Συνταξιοδοτικός Οδηγός ΥΕΦΚΚ - V84.3';
+
+  let restored=false;
+  const restore=()=>{
+    if(restored)return;
+    restored=true;
+    details.forEach((d,i)=>{d.open=openState[i];});
+    document.title=oldTitle;
+    window.removeEventListener('afterprint',restore);
+  };
+
+  window.addEventListener('afterprint',restore);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    try{ window.print(); }
+    finally{ setTimeout(restore,1200); }
+  }));
+}
 
 /* PWA εγκατάσταση */
 let deferredInstallPrompt = null;
